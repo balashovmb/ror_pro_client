@@ -48,8 +48,7 @@ class Client
     res = Net::HTTP.get(uri)
     puts res
     my_hash = JSON.parse(res)
-    puts my_hash
-    puts my_hash['email']     
+    puts "Вы вошли в систему как #{my_hash['email']}"     
     press_enter
   rescue TypeError
     puts 'Неверный код авторизации'
