@@ -6,10 +6,11 @@ require 'oauth2'
 class Client
 
   def initialize
-    @client_id     = "aba4ddd63d81ad3d538875a7ee9f97f4de1efd20b82604b15388edae6eb63842"
-    @client_secret = "d5ddf868b8bed1f6568092e849808469b4b3cc85042bfe94a9d8a971ee111d93"
-    @redirect_uri  = "urn:ietf:wg:oauth:2.0:oob"
-    @site          = "http://localhost:3000" # your provider server, mine is running on localhost
+    settings = IO.readlines("settings")
+    @client_id     = settings[0].strip
+    @client_secret = settings[1].strip
+    @redirect_uri  = settings[2].strip
+    @site          = settings[3].strip
     @message = ''
   end  
 
