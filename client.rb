@@ -46,9 +46,8 @@ class Client
     addr = 'http://localhost:3000/api/v1/profiles/me.json?access_token=' + access_token
     uri = URI(addr)
     res = Net::HTTP.get(uri)
-    puts res
-    my_hash = JSON.parse(res)
-    puts "Вы вошли в систему как #{my_hash['email']}"     
+    my_profile = JSON.parse(res)
+    puts "Вы вошли в систему как #{my_profile['email']}"     
     press_enter
   rescue TypeError
     puts 'Неверный код авторизации'
@@ -61,7 +60,11 @@ class Client
     addr = 'http://localhost:3000/api/v1/questions.json?access_token=' + access_token
     uri = URI(addr)
     res = Net::HTTP.get(uri)
-    puts res
+    questions = JSON.parse(res)['questions']
+    questions.each do |question|
+      print question['id'].to_s + ' '
+      puts question['title']
+    end
     press_enter
     @message = ''
   end
