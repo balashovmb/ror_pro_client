@@ -6,12 +6,8 @@ require 'oauth2'
 class Client
 
   def initialize
-    settings = IO.readlines("settings")
-    @client_id     = settings[0].strip
-    @client_secret = settings[1].strip
-    @redirect_uri  = settings[2].strip
-    @site          = settings[3].strip
     @message = ''
+    @settings = YAML::load_file "settings.yml"
   end  
 
   def main_menu
@@ -74,20 +70,24 @@ class Client
   end
 
   def get_code
-    client = OAuth2::Client.new(@client_id, @client_secret, :site => @site)
+    client = OAuth2::Client.new(
+      @settings['client_id'], 
+      @settings['client_secret'],
+      :site => @settings['site']
+    )    
     puts "Перейдите по ссылке ниже и скопируйте код авторизации:"
-    puts client.auth_code.authorize_url(:redirect_uri => @redirect_uri)
+    puts client.auth_code.authorize_url(:redirect_uri => @settings['redirect_uri'])
     puts "Вставьте код авторизации и нажмите Enter"
     @code = gets.chomp
   end
 
   def get_access_token
     get_code
-    body = { "client_id" => @client_id,
-              "client_secret" => @client_secret,
+    body = { "client_id" => @settings['client_id'],
+              "client_secret" => @settings['client_secret'],
               "code" => @code,
               "grant_type" => "authorization_code",
-              "redirect_uri" => @redirect_uri                
+              "redirect_uri" => @settings['redirect_uri']                
             }.to_json
     res = Net::HTTP.post URI('http://localhost:3000/oauth/token'),
                          body,
