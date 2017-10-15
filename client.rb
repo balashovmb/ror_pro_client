@@ -31,6 +31,8 @@ class Client
       get_my_profile
     when '2'
       get_questions_list
+    when '9'
+      options
     when '0'
       exit
     else
@@ -99,6 +101,42 @@ class Client
   def press_enter
     puts "Для продолжения нажмите Enter"
     gets
+  end
+
+  def options
+    puts @settings
+    puts '1) Изменить client_id'
+    puts '2) Изменить client_secret'
+    puts '3) Изменить redirect_uri'
+    puts '4) Изменить адрес сайта'
+    puts '0) Выхода в основное меню'    
+    user_choice = gets.chomp
+    system('clear')
+    case user_choice
+    when '1'
+      puts 'Введите client_id'
+      @settings['client_id'] = gets.chomp
+    when '2'
+      puts 'Введите client_secret'
+      @settings['client_secret'] = gets.chomp
+    when '3'
+      puts 'Введите redirect_uri'
+      @settings['redirect_uri'] = gets.chomp      
+    when '4'
+      puts 'Введите адрес сайта'
+      @settings['site'] = gets.chomp   
+    when '0'
+      main_menu
+    else
+      options    
+    end
+    save_settings  
+  end
+
+  def save_settings
+    File.open("settings.yml", "w") do |file|
+      file.write @settings.to_yaml
+    end
   end
 end
 
