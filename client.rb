@@ -104,12 +104,13 @@ class Client
   end
 
   def options
-    puts @settings
+    show_settings
+    puts "Введите номер желаемого действия и нажмите Enter:"
     puts '1) Изменить client_id'
     puts '2) Изменить client_secret'
     puts '3) Изменить redirect_uri'
     puts '4) Изменить адрес сайта'
-    puts '0) Выхода в основное меню'    
+    puts '0) Выход в основное меню'
     user_choice = gets.chomp
     system('clear')
     case user_choice
@@ -124,7 +125,7 @@ class Client
       @settings['redirect_uri'] = gets.chomp      
     when '4'
       puts 'Введите адрес сайта'
-      @settings['site'] = gets.chomp   
+      @settings['site'] = gets.chomp
     when '0'
       main_menu
     else
@@ -138,6 +139,16 @@ class Client
       file.write @settings.to_yaml
     end
   end
+
+  def show_settings
+    puts "Текущие настройки:"
+    puts "client_id: #{@settings['client_id']}"
+    puts "client_secret: #{@settings['client_secret']}"
+    puts "redirect_uri: #{@settings['redirect_uri']}"
+    puts "адрес сайта: #{@settings['site']}"
+    puts
+  end
+
 end
 
 client = Client.new
