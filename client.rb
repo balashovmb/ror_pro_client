@@ -41,7 +41,7 @@ class Client
   end
 
   def get_my_profile
-    addr = 'http://localhost:3000/api/v1/profiles/me.json?access_token=' + access_token
+    addr = @settings['site'] + '/api/v1/profiles/me.json?access_token=' + access_token
     uri = URI(addr)
     res = Net::HTTP.get(uri)
     my_profile = JSON.parse(res)
@@ -55,7 +55,7 @@ class Client
   
   def get_questions_list
     return @message = "Вы не авторизованы" unless @access_token  
-    addr = 'http://localhost:3000/api/v1/questions.json?access_token=' + access_token
+    addr = @settings['site'] + '/api/v1/questions.json?access_token=' + access_token
     uri = URI(addr)
     res = Net::HTTP.get(uri)
     questions = JSON.parse(res)['questions']
@@ -91,7 +91,7 @@ class Client
               "grant_type" => "authorization_code",
               "redirect_uri" => @settings['redirect_uri']                
             }.to_json
-    res = Net::HTTP.post URI('http://localhost:3000/oauth/token'),
+    res = Net::HTTP.post URI(@settings['site']+'/oauth/token'),
                          body,
                          "Content-Type" => "application/json"
     res_hash = JSON.parse(res.body)
