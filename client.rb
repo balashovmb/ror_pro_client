@@ -31,6 +31,8 @@ class Client
       get_my_profile
     when '2'
       get_questions_list
+    when '3'
+      create_question
     when '9'
       options
     when '0'
@@ -149,7 +151,23 @@ class Client
     puts
   end
 
+  def create_question
+    puts 'Введите заголовок вопроса'
+    title = gets.chomp
+    puts 'Введите тело вопроса'
+    body = gets.chomp
+    uri = @settings['site'] + '/api/v1/questions.json?access_token='
+    res = Net::HTTP.post URI(uri),
+               { "question" => { "body" => body, "title" => title }, "access_token" => access_token }.to_json,
+               "Content-Type" => "application/json"
+    puts res
+    puts res.body
+    press_enter
+  end
+
 end
 
 client = Client.new
 client.main_menu
+
+res = Net::HTTP.post_form(uri, 'q' => ['ruby', 'perl'], 'max' => '50')
