@@ -29,7 +29,7 @@ class Client
     when '1'
       get_my_profile
     when '2'
-      get_questions_list
+      questions
     when '3'
       create_question
     when '9'
@@ -54,7 +54,18 @@ class Client
     retry
   end
 
-  def get_questions_list
+  def questions
+    questions_list
+    puts 'Введите id вопроса'
+    @question_id = gets.chomp
+    addr = @settings['site'] + "/api/v1/questions/#{@question_id}.json?access_token=" + access_token
+    uri = URI(addr)
+    res = Net::HTTP.get(uri)
+    puts res
+    press_enter
+  end
+
+  def questions_list
     return @message = 'Вы не авторизованы' unless @access_token
     addr = @settings['site'] + '/api/v1/questions.json?access_token=' + access_token
     uri = URI(addr)
@@ -64,9 +75,9 @@ class Client
       print question['id'].to_s + ' '
       puts question['title']
     end
-    press_enter
-    @message = ''
   end
+
+
 
   def access_token
     @access_token ||= get_access_token
