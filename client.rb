@@ -160,8 +160,13 @@ class Client
     res = Net::HTTP.post URI(uri),
                { "question" => { "body" => body, "title" => title }, "access_token" => access_token }.to_json,
                "Content-Type" => "application/json"
-    puts res
-    puts res.body
+    res_hash = JSON.parse(res.body)
+    if res_hash.key?('errors')
+      puts 'Во время создания вопроса произошли следующие ошибки:'
+      puts res_hash('errors')
+    else
+      puts 'Ваш вопрос создан'
+    end
     press_enter
   end
 
