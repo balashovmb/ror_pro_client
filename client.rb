@@ -162,7 +162,7 @@ class Client
     res_hash = JSON.parse(res.body)
     if res_hash.key?('errors')
       puts 'Во время создания вопроса произошли следующие ошибки:'
-      puts res_hash('errors')
+      puts res_hash['errors']
     else
       puts 'Ваш вопрос создан'
     end
