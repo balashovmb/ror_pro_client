@@ -56,12 +56,25 @@ class Client
 
   def questions
     questions_list
-    puts 'Введите id вопроса'
+    puts 'Введите id вопроса, чтобы увидеть подробности. Введите 0 для выхода в главное меню'
     @question_id = gets.chomp
-    addr = @settings['site'] + "/api/v1/questions/#{@question_id}.json?access_token=" + access_token
+    return if @question_id == '0'
+    show_question(@question_id)
+  end
+
+  def show_question(question_id)
+    return @message = 'Вы не авторизованы' unless @access_token
+    addr = @settings['site'] + "/api/v1/questions/#{question_id}.json?access_token=" + access_token
     uri = URI(addr)
     res = Net::HTTP.get(uri)
-    puts res
+    question = JSON.parse(res)['question']
+    puts "Заголовок: #{question['title']}"
+    puts "Текст вопроса: #{question['body']}"
+    puts "Комментарии:"
+    question['comments'].each do |comment|
+      print comment['id'].to_s + ' '
+      puts comment['body']
+    end
     press_enter
   end
 
@@ -76,8 +89,6 @@ class Client
       puts question['title']
     end
   end
-
-
 
   def access_token
     @access_token ||= get_access_token
