@@ -87,11 +87,10 @@ class Client
   def get_access_token
     get_code
     body = { 'client_id' => @settings['client_id'],
-              'client_secret' => @settings['client_secret'],
-              'code' => @code,
-              'grant_type' => 'authorization_code',
-              'redirect_uri' => @settings['redirect_uri']
-            }.to_json
+             'client_secret' => @settings['client_secret'],
+             'code' => @code,
+             'grant_type' => 'authorization_code',
+             'redirect_uri' => @settings['redirect_uri'] }.to_json
     res = Net::HTTP.post URI(@settings['site'] + '/oauth/token'),
                          body,
                          'Content-Type' => 'application/json'
@@ -157,8 +156,9 @@ class Client
     body = gets.chomp
     uri = @settings['site'] + '/api/v1/questions.json?access_token='
     res = Net::HTTP.post URI(uri),
-               { 'question' => { 'body' => body, 'title' => title }, 'access_token' => access_token }.to_json,
-               'Content-Type' => 'application/json'
+                         { 'question' => { 'body' => body, 'title' => title },
+                           'access_token' => access_token }.to_json,
+                         'Content-Type' => 'application/json'
     res_hash = JSON.parse(res.body)
     if res_hash.key?('errors')
       puts 'Во время создания вопроса произошли следующие ошибки:'
