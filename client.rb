@@ -4,11 +4,10 @@ require 'json'
 require 'oauth2'
 
 class Client
-
   def initialize
     @message = ''
-    @settings = YAML::load_file "settings.yml"
-  end  
+    @settings = YAML::load_file 'settings.yml'
+  end
 
   def main_menu
     loop do
@@ -47,16 +46,16 @@ class Client
     uri = URI(addr)
     res = Net::HTTP.get(uri)
     my_profile = JSON.parse(res)
-    puts "Вы вошли в систему как #{my_profile['email']}"     
+    puts "Вы вошли в систему как #{my_profile['email']}"
     press_enter
   rescue TypeError
     puts 'Неверный код авторизации'
     press_enter
-    retry    
+    retry
   end
-  
+
   def get_questions_list
-    return @message = "Вы не авторизованы" unless @access_token  
+    return @message = 'Вы не авторизованы' unless @access_token
     addr = @settings['site'] + '/api/v1/questions.json?access_token=' + access_token
     uri = URI(addr)
     res = Net::HTTP.get(uri)
@@ -70,44 +69,44 @@ class Client
   end
 
   def access_token
-    @access_token ||= get_access_token 
+    @access_token ||= get_access_token
   end
 
   def get_code
     client = OAuth2::Client.new(
-      @settings['client_id'], 
+      @settings['client_id'],
       @settings['client_secret'],
-      :site => @settings['site']
-    )    
-    puts "Перейдите по ссылке ниже и скопируйте код авторизации:"
-    puts client.auth_code.authorize_url(:redirect_uri => @settings['redirect_uri'])
-    puts "Вставьте код авторизации и нажмите Enter"
+      site: @settings['site']
+    )
+    puts 'Перейдите по ссылке ниже и скопируйте код авторизации:'
+    puts client.auth_code.authorize_url(redirect_uri: @settings['redirect_uri'])
+    puts 'Вставьте код авторизации и нажмите Enter'
     @code = gets.chomp
   end
 
   def get_access_token
     get_code
-    body = { "client_id" => @settings['client_id'],
-              "client_secret" => @settings['client_secret'],
-              "code" => @code,
-              "grant_type" => "authorization_code",
-              "redirect_uri" => @settings['redirect_uri']                
+    body = { 'client_id' => @settings['client_id'],
+              'client_secret' => @settings['client_secret'],
+              'code' => @code,
+              'grant_type' => 'authorization_code',
+              'redirect_uri' => @settings['redirect_uri']
             }.to_json
-    res = Net::HTTP.post URI(@settings['site']+'/oauth/token'),
+    res = Net::HTTP.post URI(@settings['site'] + '/oauth/token'),
                          body,
-                         "Content-Type" => "application/json"
+                         'Content-Type' => 'application/json'
     res_hash = JSON.parse(res.body)
-    @access_token = res_hash["access_token"]
+    @access_token = res_hash['access_token']
   end
 
   def press_enter
-    puts "Для продолжения нажмите Enter"
+    puts 'Для продолжения нажмите Enter'
     gets
   end
 
   def options
     show_settings
-    puts "Введите номер желаемого действия и нажмите Enter:"
+    puts 'Введите номер желаемого действия и нажмите Enter:'
     puts '1) Изменить client_id'
     puts '2) Изменить client_secret'
     puts '3) Изменить redirect_uri'
@@ -124,26 +123,26 @@ class Client
       @settings['client_secret'] = gets.chomp
     when '3'
       puts 'Введите redirect_uri'
-      @settings['redirect_uri'] = gets.chomp      
+      @settings['redirect_uri'] = gets.chomp
     when '4'
       puts 'Введите адрес сайта'
       @settings['site'] = gets.chomp
     when '0'
       main_menu
     else
-      options    
+      options
     end
-    save_settings  
+    save_settings
   end
 
   def save_settings
-    File.open("settings.yml", "w") do |file|
+    File.open('settings.yml', 'w') do |file|
       file.write @settings.to_yaml
     end
   end
 
   def show_settings
-    puts "Текущие настройки:"
+    puts 'Текущие настройки:'
     puts "client_id: #{@settings['client_id']}"
     puts "client_secret: #{@settings['client_secret']}"
     puts "redirect_uri: #{@settings['redirect_uri']}"
@@ -158,8 +157,8 @@ class Client
     body = gets.chomp
     uri = @settings['site'] + '/api/v1/questions.json?access_token='
     res = Net::HTTP.post URI(uri),
-               { "question" => { "body" => body, "title" => title }, "access_token" => access_token }.to_json,
-               "Content-Type" => "application/json"
+               { 'question' => { 'body' => body, 'title' => title }, 'access_token' => access_token }.to_json,
+               'Content-Type' => 'application/json'
     res_hash = JSON.parse(res.body)
     if res_hash.key?('errors')
       puts 'Во время создания вопроса произошли следующие ошибки:'
@@ -169,10 +168,7 @@ class Client
     end
     press_enter
   end
-
 end
 
 client = Client.new
 client.main_menu
-
-res = Net::HTTP.post_form(uri, 'q' => ['ruby', 'perl'], 'max' => '50')
