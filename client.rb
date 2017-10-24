@@ -55,16 +55,23 @@ class Client
   end
 
   def questions
-    questions_list
-    puts 'Введите id вопроса, чтобы увидеть подробности. Введите 0 для выхода в главное меню'
-    @question_id = gets.chomp
-    return if @question_id == '0'
+    return @message = 'Вы не авторизованы' unless @access_token
+    questions = questions_index
+    loop do
+      system 'clear'
+      show_questions(questions)
+      puts 'Введите id вопроса, чтобы увидеть подробности. Введите 0 для выхода в главное меню'
+      @question_id = gets.chomp
+      return if @question_id == '0'
+      break if @question_ids.include?(@question_id)
+      puts 'Не верный id вопроса'
+      press_enter
+    end
     show_question @question_id
   end
 
   def show_question(question_id)
     system 'clear'
-    return @message = 'Вы не авторизованы' unless @access_token
     uri = create_uri "/api/v1/questions/#{question_id}.json?access_token="
     res = Net::HTTP.get uri
     question = JSON.parse(res)['question']
@@ -91,14 +98,18 @@ class Client
     end
   end
 
-  def questions_list
-    return @message = 'Вы не авторизованы' unless @access_token
+  def load_questions
     uri = create_uri '/api/v1/questions.json?access_token='
     res = Net::HTTP.get uri
-    questions = JSON.parse(res)['questions']
+    JSON.parse(res)['questions']
+  end
+
+  def show_questions(questions)
+    @question_ids = []
     questions.each do |question|
       print question['id'].to_s + ' '
       puts question['title']
+      @question_ids << question['id'].to_s
     end
   end
 
@@ -191,6 +202,7 @@ class Client
   end
 
   def create_question
+    return @message = 'Вы не авторизованы' unless @access_token
     puts 'Введите заголовок вопроса'
     question_title = gets.chomp
     puts 'Введите тело вопроса'
