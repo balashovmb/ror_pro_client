@@ -70,12 +70,25 @@ class Client
     question = JSON.parse(res)['question']
     puts "Заголовок: #{question['title']}"
     puts "Текст вопроса: #{question['body']}"
+    show_comments(question)
+    show_attachments(question)
+    press_enter
+  end
+
+  def show_comments(item)
     puts "Комментарии:"
-    question['comments'].each do |comment|
+    item['comments'].each do |comment|
       print comment['id'].to_s + ' '
       puts comment['body']
     end
-    press_enter
+  end
+
+  def show_attachments(item)
+    puts "Вложения:"
+    item['attachments'].each do |attachment|
+      print attachment['id'].to_s + ' '
+      puts @settings['site'] + attachment['url']
+    end
   end
 
   def questions_list
