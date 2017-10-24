@@ -6,14 +6,14 @@ require 'oauth2'
 class Client
   def initialize
     @message = ''
-    @settings = YAML::load_file 'settings.yml'
+    @settings = YAML.load_file 'settings.yml'
   end
 
   def main_menu
     loop do
-      system('clear')
+      system 'clear'
       text_path = File.expand_path('../menu_text', __FILE__)
-      puts File.read(text_path)
+      puts File.read text_path
       puts @message
       menu_input
     end
@@ -24,7 +24,7 @@ class Client
   def menu_input
     print 'Ваш выбор: '
     user_choice = gets.chomp
-    system('clear')
+    system 'clear'
     case user_choice
     when '1'
       get_my_profile
@@ -42,10 +42,10 @@ class Client
   end
 
   def get_my_profile
-    addr = @settings['site'] + '/api/v1/profiles/me.json?access_token=' + access_token
-    uri = URI(addr)
-    res = Net::HTTP.get(uri)
-    my_profile = JSON.parse(res)
+    get_access_token
+    uri = create_uri '/api/v1/profiles/me.json?access_token='
+    res = Net::HTTP.get uri
+    my_profile = JSON.parse res
     puts "Вы вошли в систему как #{my_profile['email']}"
     press_enter
   rescue TypeError
@@ -59,24 +59,24 @@ class Client
     puts 'Введите id вопроса, чтобы увидеть подробности. Введите 0 для выхода в главное меню'
     @question_id = gets.chomp
     return if @question_id == '0'
-    show_question(@question_id)
+    show_question @question_id
   end
 
   def show_question(question_id)
+    system 'clear'
     return @message = 'Вы не авторизованы' unless @access_token
-    addr = @settings['site'] + "/api/v1/questions/#{question_id}.json?access_token=" + access_token
-    uri = URI(addr)
-    res = Net::HTTP.get(uri)
+    uri = create_uri "/api/v1/questions/#{question_id}.json?access_token="
+    res = Net::HTTP.get uri
     question = JSON.parse(res)['question']
     puts "Заголовок: #{question['title']}"
     puts "Текст вопроса: #{question['body']}"
-    show_comments(question)
-    show_attachments(question)
+    show_comments question
+    show_attachments question
     press_enter
   end
 
   def show_comments(item)
-    puts "Комментарии:"
+    puts 'Комментарии:'
     item['comments'].each do |comment|
       print comment['id'].to_s + ' '
       puts comment['body']
@@ -84,7 +84,7 @@ class Client
   end
 
   def show_attachments(item)
-    puts "Вложения:"
+    puts 'Вложения:'
     item['attachments'].each do |attachment|
       print attachment['id'].to_s + ' '
       puts @settings['site'] + attachment['url']
@@ -93,9 +93,8 @@ class Client
 
   def questions_list
     return @message = 'Вы не авторизованы' unless @access_token
-    addr = @settings['site'] + '/api/v1/questions.json?access_token=' + access_token
-    uri = URI(addr)
-    res = Net::HTTP.get(uri)
+    uri = create_uri '/api/v1/questions.json?access_token='
+    res = Net::HTTP.get uri
     questions = JSON.parse(res)['questions']
     questions.each do |question|
       print question['id'].to_s + ' '
@@ -103,9 +102,9 @@ class Client
     end
   end
 
-  def access_token
-    @access_token ||= get_access_token
-  end
+  # def access_token
+  #   @access_token ||= get_access_token
+  # end
 
   def get_code
     client = OAuth2::Client.new(
@@ -126,16 +125,23 @@ class Client
              'code' => @code,
              'grant_type' => 'authorization_code',
              'redirect_uri' => @settings['redirect_uri'] }.to_json
-    res = Net::HTTP.post URI(@settings['site'] + '/oauth/token'),
+    uri = create_uri '/oauth/token', nil
+    res = Net::HTTP.post uri,
                          body,
                          'Content-Type' => 'application/json'
-    res_hash = JSON.parse(res.body)
+    res_hash = JSON.parse res.body
     @access_token = res_hash['access_token']
   end
 
   def press_enter
     puts 'Для продолжения нажмите Enter'
     gets
+  end
+
+  def create_uri(uri_pattern, token = @access_token)
+    addr = @settings['site'] + uri_pattern
+    addr += token if token
+    URI addr
   end
 
   def options
@@ -147,7 +153,7 @@ class Client
     puts '4) Изменить адрес сайта'
     puts '0) Выход в основное меню'
     user_choice = gets.chomp
-    system('clear')
+    system 'clear'
     case user_choice
     when '1'
       puts 'Введите client_id'
@@ -186,16 +192,17 @@ class Client
 
   def create_question
     puts 'Введите заголовок вопроса'
-    title = gets.chomp
+    question_title = gets.chomp
     puts 'Введите тело вопроса'
-    body = gets.chomp
-    uri = @settings['site'] + '/api/v1/questions.json?access_token='
-    res = Net::HTTP.post URI(uri),
-                         { 'question' => { 'body' => body, 'title' => title },
-                           'access_token' => access_token }.to_json,
+    question_body = gets.chomp
+    uri = create_uri '/api/v1/questions.json?access_token=', nil
+    body = { 'question' => { 'body' => question_body, 'title' => question_title },
+             'access_token' => @access_token }.to_json
+    res = Net::HTTP.post uri,
+                         body,
                          'Content-Type' => 'application/json'
-    res_hash = JSON.parse(res.body)
-    if res_hash.key?('errors')
+    res_hash = JSON.parse res.body
+    if res_hash.key? 'errors'
       puts 'Во время создания вопроса произошли следующие ошибки:'
       puts res_hash['errors']
     else

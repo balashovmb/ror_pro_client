@@ -2,3 +2,5 @@ AllCops:
   DisplayCopNames: true
 Metrics/LineLength:
   Max: 101
+Style/Documentation:
+  Enabled: false
