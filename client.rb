@@ -56,7 +56,7 @@ class Client
 
   def questions
     return @message = 'Вы не авторизованы' unless @access_token
-    questions = questions_index
+    questions = load_questions
     loop do
       system 'clear'
       show_questions(questions)
