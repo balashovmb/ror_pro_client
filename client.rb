@@ -43,7 +43,7 @@ class Client
 
   def get_my_profile
     get_access_token
-    uri = create_uri '/api/v1/profiles/me.json?access_token='
+    uri = create_uri '/api/v1/profiles/me.json'
     res = Net::HTTP.get uri
     my_profile = JSON.parse res
     puts "Вы вошли в систему как #{my_profile['email']}"
@@ -72,7 +72,7 @@ class Client
 
   def show_question(question_id)
     system 'clear'
-    uri = create_uri "/api/v1/questions/#{question_id}.json?access_token="
+    uri = create_uri "/api/v1/questions/#{question_id}.json"
     res = Net::HTTP.get uri
     question = JSON.parse(res)['question']
     puts "Заголовок: #{question['title']}"
@@ -99,7 +99,7 @@ class Client
   end
 
   def load_questions
-    uri = create_uri '/api/v1/questions.json?access_token='
+    uri = create_uri '/api/v1/questions.json'
     res = Net::HTTP.get uri
     JSON.parse(res)['questions']
   end
@@ -136,7 +136,7 @@ class Client
              'code' => @code,
              'grant_type' => 'authorization_code',
              'redirect_uri' => @settings['redirect_uri'] }.to_json
-    uri = create_uri '/oauth/token', nil
+    uri = create_uri('/oauth/token', nil)
     res = Net::HTTP.post uri,
                          body,
                          'Content-Type' => 'application/json'
@@ -150,7 +150,7 @@ class Client
   end
 
   def create_uri(uri_pattern, token = @access_token)
-    addr = @settings['site'] + uri_pattern
+    addr = @settings['site'] + uri_pattern + '?access_token='
     addr += token if token
     URI addr
   end
@@ -207,7 +207,7 @@ class Client
     question_title = gets.chomp
     puts 'Введите тело вопроса'
     question_body = gets.chomp
-    uri = create_uri '/api/v1/questions.json?access_token=', nil
+    uri = create_uri '/api/v1/questions.json', nil
     body = { 'question' => { 'body' => question_body, 'title' => question_title },
              'access_token' => @access_token }.to_json
     res = Net::HTTP.post uri,
