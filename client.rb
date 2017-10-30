@@ -113,10 +113,6 @@ class Client
     end
   end
 
-  # def access_token
-  #   @access_token ||= get_access_token
-  # end
-
   def get_code
     client = OAuth2::Client.new(
       @settings['client_id'],
