@@ -162,12 +162,14 @@ class Client
 
   def options
     show_settings
-    puts 'Введите номер желаемого действия и нажмите Enter:'
-    puts '1) Изменить client_id'
-    puts '2) Изменить client_secret'
-    puts '3) Изменить redirect_uri'
-    puts '4) Изменить адрес сайта'
-    puts '0) Выход в основное меню'
+    puts <<~MENU_OPTIONS
+      Введите номер желаемого действия и нажмите Enter:
+      1) Изменить client_id
+      2) Изменить client_secret
+      3) Изменить redirect_uri
+      4) Изменить адрес сайта
+      0) Выход в основное меню
+    MENU_OPTIONS
     user_choice = gets.chomp
     system 'clear'
     case user_choice
@@ -198,12 +200,14 @@ class Client
   end
 
   def show_settings
-    puts 'Текущие настройки:'
-    puts "client_id: #{@settings['client_id']}"
-    puts "client_secret: #{@settings['client_secret']}"
-    puts "redirect_uri: #{@settings['redirect_uri']}"
-    puts "адрес сайта: #{@settings['site']}"
-    puts
+    puts  <<~CURRENT_SETTINGS
+      Текущие настройки:
+      client_id: #{@settings['client_id']}
+      client_secret: #{@settings['client_secret']}
+      redirect_uri: #{@settings['redirect_uri']}
+      адрес сайта: #{@settings['site']}
+
+    CURRENT_SETTINGS
   end
 
   def create_question
