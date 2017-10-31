@@ -46,12 +46,13 @@ class Client
   end
 
   def log_in
+    get_access_token
+    return unless @access_token
     profile = get_profile
     show_profile(profile)
   end
 
   def get_profile
-    get_access_token
     uri = create_uri '/api/v1/profiles/me.json'
     Net::HTTP.get uri
   end
@@ -59,8 +60,6 @@ class Client
   def show_profile(profile)
     my_profile = JSON.parse profile
     press_enter "Вы вошли в систему как #{my_profile['email']}"
-  rescue JSON::ParserError
-    press_enter 'Неверный код авторизации'
   end
 
   def questions
@@ -145,6 +144,7 @@ class Client
                          body,
                          'Content-Type' => 'application/json'
     res_hash = JSON.parse res.body
+    return press_enter 'Не верный код авторизации' if res_hash.key? 'error'
     @access_token = res_hash['access_token']
   end
 
@@ -200,7 +200,7 @@ class Client
   end
 
   def show_settings
-    puts  <<~CURRENT_SETTINGS
+    puts <<~CURRENT_SETTINGS
       Текущие настройки:
       client_id: #{@settings['client_id']}
       client_secret: #{@settings['client_secret']}
