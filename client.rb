@@ -65,13 +65,14 @@ class Client
   def questions
     return @message = 'Вы не авторизованы' unless @access_token
     questions = load_questions
+    question_ids = aggregate_question_ids(questions)
     loop do
       system 'clear'
       show_questions(questions)
       puts 'Введите id вопроса, чтобы увидеть подробности. Введите 0 для выхода в главное меню'
       @question_id = gets.chomp
       return if @question_id == '0'
-      break if @question_ids.include?(@question_id)
+      break if question_ids.include?(@question_id)
       press_enter 'Не верный id вопроса'
     end
     show_question @question_id
@@ -112,12 +113,16 @@ class Client
   end
 
   def show_questions(questions)
-    @question_ids = []
     questions.each do |question|
       print question['id'].to_s + ' '
       puts question['title']
-      @question_ids << question['id'].to_s
     end
+  end
+
+  def aggregate_question_ids(questions)
+    question_ids = []
+    questions.each { |question| question_ids << question['id'].to_s }
+    question_ids
   end
 
   def get_code
