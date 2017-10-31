@@ -4,9 +4,9 @@ require 'json'
 require 'oauth2'
 
 class Client
-  def initialize
+  def initialize(settings = load_settings)
     @message = ''
-    @settings = YAML.load_file 'settings.yml'
+    @settings = settings
   end
 
   def main_menu
@@ -20,6 +20,10 @@ class Client
   end
 
   private
+
+  def load_settings
+    YAML.load_file 'settings.yml'
+  end
 
   def menu_input
     print 'Ваш выбор: '
