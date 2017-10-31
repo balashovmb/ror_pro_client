@@ -27,7 +27,7 @@ class Client
     system 'clear'
     case user_choice
     when '1'
-      get_my_profile
+      log_in
     when '2'
       questions
     when '3'
@@ -41,17 +41,22 @@ class Client
     end
   end
 
-  def get_my_profile
+  def log_in
+    profile = get_profile
+    show_profile(profile)
+  end
+
+  def get_profile
     get_access_token
     uri = create_uri '/api/v1/profiles/me.json'
-    res = Net::HTTP.get uri
-    my_profile = JSON.parse res
-    puts "Вы вошли в систему как #{my_profile['email']}"
-    press_enter
-  rescue TypeError
-    puts 'Неверный код авторизации'
-    press_enter
-    retry
+    Net::HTTP.get uri
+  end
+
+  def show_profile(profile)
+    my_profile = JSON.parse profile
+    press_enter "Вы вошли в систему как #{my_profile['email']}"
+  rescue JSON::ParserError
+    press_enter 'Неверный код авторизации'
   end
 
   def questions
@@ -64,8 +69,7 @@ class Client
       @question_id = gets.chomp
       return if @question_id == '0'
       break if @question_ids.include?(@question_id)
-      puts 'Не верный id вопроса'
-      press_enter
+      press_enter 'Не верный id вопроса'
     end
     show_question @question_id
   end
@@ -140,7 +144,8 @@ class Client
     @access_token = res_hash['access_token']
   end
 
-  def press_enter
+  def press_enter(message = nil)
+    puts message if message
     puts 'Для продолжения нажмите Enter'
     gets
   end
