@@ -64,7 +64,8 @@ class Client
 
   def questions
     return @message = 'Вы не авторизованы' unless @access_token
-    questions = load_questions
+    questions_json = load_questions
+    questions = JSON.parse(questions_json)['questions']
     question_ids = aggregate_question_ids questions
     question_id = choose_question(questions, question_ids)
     question_json = load_question question_id
@@ -120,8 +121,7 @@ class Client
 
   def load_questions
     uri = create_uri '/api/v1/questions.json'
-    res = Net::HTTP.get uri
-    JSON.parse(res)['questions']
+    Net::HTTP.get uri
   end
 
   def show_questions(questions)
