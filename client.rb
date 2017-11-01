@@ -74,11 +74,11 @@ class Client
   def choose_question(questions, question_ids)
     loop do
       system 'clear'
-      show_questions(questions)
+      show_questions questions
       puts 'Введите id вопроса, чтобы увидеть подробности. Введите 0 для выхода в главное меню'
       question_id = gets.chomp
       return if question_id == '0'
-      break question_id if question_ids.include?(question_id)
+      break question_id if question_ids.include? question_id
       press_enter 'Не верный id вопроса'
     end
   end
