@@ -66,23 +66,31 @@ class Client
     return @message = 'Вы не авторизованы' unless @access_token
     questions = load_questions
     question_ids = aggregate_question_ids(questions)
+    question_id = choose_question(questions, question_ids)
+    question_json = load_question question_id
+    show_question question_json
+  end
+
+  def choose_question(questions, question_ids)
     loop do
       system 'clear'
       show_questions(questions)
       puts 'Введите id вопроса, чтобы увидеть подробности. Введите 0 для выхода в главное меню'
-      @question_id = gets.chomp
-      return if @question_id == '0'
-      break if question_ids.include?(@question_id)
+      question_id = gets.chomp
+      return if question_id == '0'
+      break question_id if question_ids.include?(question_id)
       press_enter 'Не верный id вопроса'
     end
-    show_question @question_id
   end
 
-  def show_question(question_id)
+  def load_question(question_id)
     system 'clear'
     uri = create_uri "/api/v1/questions/#{question_id}.json"
-    res = Net::HTTP.get uri
-    question = JSON.parse(res)['question']
+    Net::HTTP.get uri
+  end
+
+  def show_question(question_json)
+    question = JSON.parse(question_json)['question']
     puts "Заголовок: #{question['title']}"
     puts "Текст вопроса: #{question['body']}"
     show_comments question
