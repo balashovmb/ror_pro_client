@@ -84,12 +84,12 @@ class Client
   end
 
   def load_question(question_id)
-    system 'clear'
     uri = create_uri "/api/v1/questions/#{question_id}.json"
     Net::HTTP.get uri
   end
 
   def show_full_question(question_json)
+    system 'clear'
     question = JSON.parse(question_json)['question']
     show_question question
     show_comments question
