@@ -134,14 +134,14 @@ class Client
     puts 'Перейдите по ссылке ниже и скопируйте код авторизации:'
     puts client.auth_code.authorize_url(redirect_uri: @settings['redirect_uri'])
     puts 'Вставьте код авторизации и нажмите Enter'
-    @code = gets.chomp
+    gets.chomp
   end
 
   def get_access_token
-    get_code
+    code = get_code
     body = { 'client_id' => @settings['client_id'],
              'client_secret' => @settings['client_secret'],
-             'code' => @code,
+             'code' => code,
              'grant_type' => 'authorization_code',
              'redirect_uri' => @settings['redirect_uri'] }.to_json
     uri = create_uri('/oauth/token', nil)
