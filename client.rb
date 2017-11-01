@@ -48,11 +48,11 @@ class Client
   def log_in
     get_access_token
     return unless @access_token
-    profile = get_profile
+    profile = load_profile
     show_profile(profile)
   end
 
-  def get_profile
+  def load_profile
     uri = create_uri '/api/v1/profiles/me.json'
     Net::HTTP.get uri
   end
@@ -65,10 +65,10 @@ class Client
   def questions
     return @message = 'Вы не авторизованы' unless @access_token
     questions = load_questions
-    question_ids = aggregate_question_ids(questions)
+    question_ids = aggregate_question_ids questions
     question_id = choose_question(questions, question_ids)
     question_json = load_question question_id
-    show_question question_json
+    show_full_question question_json
   end
 
   def choose_question(questions, question_ids)
@@ -89,13 +89,17 @@ class Client
     Net::HTTP.get uri
   end
 
-  def show_question(question_json)
+  def show_full_question(question_json)
     question = JSON.parse(question_json)['question']
-    puts "Заголовок: #{question['title']}"
-    puts "Текст вопроса: #{question['body']}"
+    show_question question
     show_comments question
     show_attachments question
     press_enter
+  end
+
+  def show_question(question)
+    puts "Заголовок: #{question['title']}"
+    puts "Текст вопроса: #{question['body']}"
   end
 
   def show_comments(item)
